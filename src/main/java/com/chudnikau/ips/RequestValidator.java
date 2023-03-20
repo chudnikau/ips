@@ -1,3 +1,5 @@
+package com.chudnikau.ips;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -5,8 +7,6 @@ import java.util.regex.Pattern;
 public class RequestValidator {
 
     public List<Integer> validateRequests(List<String> blacklisted_ips, List<String> requests) {
-        // Write your code here
-
         List<Integer> result = new ArrayList<>();
 
         boolean incorrectInput =
