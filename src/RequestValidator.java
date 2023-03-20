@@ -6,7 +6,19 @@ public class RequestValidator {
 
     public List<Integer> validateRequests(List<String> blacklisted_ips, List<String> requests) {
         // Write your code here
+
         List<Integer> result = new ArrayList<>();
+
+        boolean incorrectInput =
+                incorrectIPsLength(blacklisted_ips) ||
+                        incorrectIPsLength(requests) ||
+                        incorrectBlacklistSize(blacklisted_ips) ||
+                        incorrectRequestSize(requests);
+
+        if (incorrectInput) {
+            return result;
+        }
+
         int unblockedLastRequestsCount = 0;
         int startLastRequestedSec = 0;
 
@@ -32,6 +44,18 @@ public class RequestValidator {
         }
 
         return result;
+    }
+
+    private boolean incorrectBlacklistSize(List<String> blacklisted_ips) {
+        return blacklisted_ips.size() < 1 || blacklisted_ips.size() > 10;
+    }
+
+    private boolean incorrectIPsLength(List<String> list) {
+        return list.stream().filter(ip -> ip.length() < 1 || ip.length() > 15).toList().size() > 0;
+    }
+
+    private boolean incorrectRequestSize(List<String> requests) {
+        return requests.size() < 1 || requests.size() > 1000;
     }
 
     private boolean blockRequestFromBlacklist(String ip, List<String> blacklisted_ips) {
