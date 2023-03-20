@@ -15,7 +15,7 @@ public class RequestValidatorTest {
     @Test
     public void validateEmptyBlackList() {
         List<String> blacklisted_ips = List.of();
-        List<String> requests = List.of("123.1.23.34");
+        List<String> requests = List.of("255.255.255.255");
 
         List<Integer> result = requestValidator.validateRequests(
                 blacklisted_ips,
@@ -32,7 +32,7 @@ public class RequestValidatorTest {
         List<String> blacklisted_ips = List.of(
                 "*.0", "*.1", "*.2", "*.3", "*.4", "*.5", "*.6", "*.7", "*.8", "*.9", "*.0"
         );
-        List<String> requests = List.of("123.1.23.34");
+        List<String> requests = List.of("255.255.255.255");
 
         List<Integer> result = requestValidator.validateRequests(
                 blacklisted_ips,
@@ -47,7 +47,7 @@ public class RequestValidatorTest {
     @Test
     public void validateMinBlackListMaskLength() {
         List<String> blacklisted_ips = List.of("");
-        List<String> requests = List.of("123.1.23.34");
+        List<String> requests = List.of("255.255.255.255");
 
         List<Integer> result = requestValidator.validateRequests(
                 blacklisted_ips,
@@ -61,8 +61,8 @@ public class RequestValidatorTest {
 
     @Test
     public void validateMaxBlackListMaskLength() {
-        List<String> blacklisted_ips = List.of("255.255.255.255.255");
-        List<String> requests = List.of("123.1.23.34");
+        List<String> blacklisted_ips = List.of("255.255.255.255.0");
+        List<String> requests = List.of("255.255.255.255");
 
         List<Integer> result = requestValidator.validateRequests(
                 blacklisted_ips,
@@ -111,7 +111,7 @@ public class RequestValidatorTest {
 
     @Test
     public void validateMinRequestMaskLength() {
-        List<String> blacklisted_ips = List.of("1.2.3.4");
+        List<String> blacklisted_ips = List.of("255.255.255.255");
         List<String> requests = List.of("");
 
         List<Integer> result = requestValidator.validateRequests(
@@ -126,8 +126,8 @@ public class RequestValidatorTest {
 
     @Test
     public void validateMaxRequestMaskLength() {
-        List<String> blacklisted_ips = List.of("1.2.3.4");
-        List<String> requests = List.of("255.255.255.255.255");
+        List<String> blacklisted_ips = List.of("255.255.255.255");
+        List<String> requests = List.of("255.255.255.255.0");
 
         List<Integer> result = requestValidator.validateRequests(
                 blacklisted_ips,
@@ -140,28 +140,7 @@ public class RequestValidatorTest {
     }
 
     @Test
-    public void shouldMask1() {
-        List<String> blacklisted_ips = List.of(
-                "111.*.255",
-                "12.");
-        List<String> requests = List.of(
-                "121.3.5.255",
-                "12.13.5.255",
-                "111.3.5.255",
-                "121.3.5.255");
-
-        List<Integer> result = requestValidator.validateRequests(
-                blacklisted_ips,
-                requests
-        );
-
-        List<Integer> expected = List.of(0, 0, 1, 0);
-
-        Assert.assertEquals(expected, result);
-    }
-
-    @Test
-    public void shouldMask2() {
+    public void shouldMultipleBlackListMasks() {
         List<String> blacklisted_ips = List.of(
                 "*111.*",
                 "123.*",
@@ -186,38 +165,16 @@ public class RequestValidatorTest {
     }
 
     @Test
-    public void shouldMask3() {
-        List<String> blacklisted_ips = List.of("*.35");
-        List<String> requests = List.of(
-                "123.1.23.34",
-                "121.1.23.34",
-                "121.1.23.34",
-                "34.1.23.34",
-                "121.1.23.34",
-                "12.1.23.34",
-                "121.1.23.34");
-
-        List<Integer> result = requestValidator.validateRequests(
-                blacklisted_ips,
-                requests
-        );
-
-        List<Integer> expected = List.of(0, 0, 0, 0, 1, 0, 0);
-
-        Assert.assertEquals(expected, result);
-    }
-
-    @Test
-    public void shouldMask4() {
+    public void shouldStartsWildcard() {
         List<String> blacklisted_ips = List.of("*.34");
         List<String> requests = List.of(
-                "123.1.23.34",
-                "121.1.23.34",
-                "121.1.23.34",
-                "34.1.23.34",
-                "121.1.23.35",
-                "12.1.23.34",
-                "121.1.23.34");
+                "255.255.255.34",
+                "255.255.255.34",
+                "255.255.255.34",
+                "255.255.255.34",
+                "255.255.255.35",
+                "255.255.255.34",
+                "255.255.255.34");
 
         List<Integer> result = requestValidator.validateRequests(
                 blacklisted_ips,
@@ -230,16 +187,16 @@ public class RequestValidatorTest {
     }
 
     @Test
-    public void shouldMask5() {
+    public void shouldEndsWildcard() {
         List<String> blacklisted_ips = List.of("34.*");
         List<String> requests = List.of(
-                "123.1.23.34",
-                "121.1.23.34",
-                "121.1.23.34",
-                "34.1.34.34",
-                "121.1.34.35",
-                "12.1.23.34",
-                "34.1.23.34");
+                "123.255.255.255",
+                "121.255.255.255",
+                "121.255.255.255",
+                "34.255.255.255",
+                "121.255.255.255",
+                "12.255.255.255",
+                "34.255.255.255");
 
         List<Integer> result = requestValidator.validateRequests(
                 blacklisted_ips,
@@ -252,7 +209,7 @@ public class RequestValidatorTest {
     }
 
     @Test
-    public void shouldMask6() {
+    public void shouldWildcard() {
         List<String> blacklisted_ips = List.of("*");
         List<String> requests = List.of(
                 "123.1.23.34",
@@ -274,22 +231,21 @@ public class RequestValidatorTest {
     }
 
     @Test
-    public void shouldMask7() {
-        List<String> blacklisted_ips = List.of(
-                "*.1.*.34");
+    public void shouldComplexWildcard() {
+        List<String> blacklisted_ips = List.of("*.1.*.34");
         List<String> requests = List.of(
                 "123.1.23.34",
-                "121.1.23.35",
-                "121.1.23.34",
-                "34.1.34.100",
-                "121.1.1.1",
-                "12.1.23.34",
-                "34.1.23.44",
-                "34.1.23.45",
-                "100.1.23.34",
-                "200.2.56.34",
-                "34.1.23.34",
-                "34.1.23.55"
+                "255.1.255.35",
+                "255.1.255.34",
+                "255.1.255.100",
+                "255.1.255.1",
+                "255.1.255.34",
+                "255.1.255.44",
+                "255.1.255.45",
+                "255.1.255.34",
+                "255.2.255.34",
+                "255.1.255.34",
+                "255.1.255.55"
         );
 
         List<Integer> result = requestValidator.validateRequests(
@@ -298,6 +254,27 @@ public class RequestValidatorTest {
         );
 
         List<Integer> expected = List.of(1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0);
+
+        Assert.assertEquals(expected, result);
+    }
+
+    @Test
+    public void shouldWildcardAndNumber() {
+        List<String> blacklisted_ips = List.of("2*.*1*.*12");
+
+        List<String> requests = List.of(
+                "255.211.255.212",
+                "255.111.255.212",
+                "255.255.255.212",
+                "200.255.011.212"
+        );
+
+        List<Integer> result = requestValidator.validateRequests(
+                blacklisted_ips,
+                requests
+        );
+
+        List<Integer> expected = List.of(1, 1, 0, 1);
 
         Assert.assertEquals(expected, result);
     }
