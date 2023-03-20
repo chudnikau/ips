@@ -7,7 +7,7 @@ public class RequestValidator {
     public List<Integer> validateRequests(List<String> blacklisted_ips, List<String> requests) {
         // Write your code here
         List<Integer> result = new ArrayList<>();
-        int unblockedLastRequests = 0;
+        int unblockedLastRequestsCount = 0;
         int startLastRequestedSec = 0;
 
         for (int i = 0; i < requests.size(); i++) {
@@ -20,15 +20,15 @@ public class RequestValidator {
                 continue;
             }
 
-            if (blockRequestByCondition(unblockedLastRequests, lastRequestSec)) {
+            if (blockRequestByCondition(unblockedLastRequestsCount, lastRequestSec)) {
                 result.add(1);
-                unblockedLastRequests = 0;
+                unblockedLastRequestsCount = 0;
                 startLastRequestedSec = i;
                 continue;
             }
 
             result.add(0);
-            unblockedLastRequests++;
+            unblockedLastRequestsCount++;
         }
 
         return result;
@@ -36,7 +36,8 @@ public class RequestValidator {
 
     private boolean blockRequestFromBlacklist(String ip, List<String> blacklisted_ips) {
         for (String mask : blacklisted_ips) {
-            if (Pattern.matches(mask, ip)) {
+            String wildcardMask = mask.replaceAll("\\*", "[.0-9]+");
+            if (Pattern.matches(wildcardMask, ip)) {
                 return true;
             }
         }
