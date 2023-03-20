@@ -27,7 +27,7 @@ public class RequestValidator {
 
             int lastRequestSec = (i - startLastRequestedSec + 1);
 
-            if (blockRequestFromBlacklist(reqIp, blacklisted_ips)) {
+            if (blockIpFromBlacklist(reqIp, blacklisted_ips)) {
                 result.add(1);
                 continue;
             }
@@ -46,20 +46,20 @@ public class RequestValidator {
         return result;
     }
 
-    private boolean incorrectBlacklistSize(List<String> blacklisted_ips) {
-        return blacklisted_ips.size() < 1 || blacklisted_ips.size() > 10;
+    private boolean incorrectBlacklistSize(List<String> list) {
+        return list.size() < 1 || list.size() > 10;
     }
 
     private boolean incorrectIPsLength(List<String> list) {
         return list.stream().filter(ip -> ip.length() < 1 || ip.length() > 15).toList().size() > 0;
     }
 
-    private boolean incorrectRequestSize(List<String> requests) {
-        return requests.size() < 1 || requests.size() > 1000;
+    private boolean incorrectRequestSize(List<String> list) {
+        return list.size() < 1 || list.size() > 1000;
     }
 
-    private boolean blockRequestFromBlacklist(String ip, List<String> blacklisted_ips) {
-        for (String mask : blacklisted_ips) {
+    private boolean blockIpFromBlacklist(String ip, List<String> blacklist) {
+        for (String mask : blacklist) {
             String wildcardMask = mask.replaceAll("\\*", "[.0-9]+");
             if (Pattern.matches(wildcardMask, ip)) {
                 return true;
@@ -68,11 +68,8 @@ public class RequestValidator {
         return false;
     }
 
-    private boolean blockRequestByCondition(Integer unblockedLastRequests, Integer lastSec) {
-        final int ALLOWED_LAST_UNBLOCKED_IPS = 2;
-        final int ALLOWED_LAST_REQUEST_TIME = 5;
-
-        return (unblockedLastRequests >= ALLOWED_LAST_UNBLOCKED_IPS && lastSec >= ALLOWED_LAST_REQUEST_TIME);
+    private boolean blockRequestByCondition(Integer unblockedLastIPs, Integer lastSeconds) {
+        return (unblockedLastIPs >= 2 && lastSeconds >= 5);
     }
 
 }
